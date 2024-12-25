@@ -4,4 +4,3 @@ flake8
 flask-sqlalchemy
 psycopg2-binary
 flask-cors
-gunicorn
