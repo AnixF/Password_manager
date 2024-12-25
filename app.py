@@ -34,7 +34,7 @@ if __name__ == "__main__":
     app = create_app()
 
     # Railway передает порт через переменную окружения
-    port = int(os.environ.get("PORT", 8080))
+    port = int(os.environ.get("PORT", 5000))
 
     # Создание таблиц
     with app.app_context():
