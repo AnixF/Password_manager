@@ -1,18 +1,29 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; // Для редиректа на другую страницу
 import {
   getPasswords,
   addPassword,
   updatePassword,
   deletePassword,
+  registerUser,
+  loginUser,
 } from "../services/api";
 
 const PasswordManager = () => {
   const [passwords, setPasswords] = useState([]);
   const [formData, setFormData] = useState({ service: "", username: "", password: "" });
   const [editId, setEditId] = useState(null);
+  const [authMode, setAuthMode] = useState("login"); // Режим авторизации или регистрации
+  const [authData, setAuthData] = useState({ username: "", email: "", password: "" });
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const navigate = useNavigate(); // Для редиректа
 
   useEffect(() => {
-    loadPasswords();
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      setIsLoggedIn(true);
+      loadPasswords(); // Загружаем пароли, если пользователь залогинен
+    }
   }, []);
 
   const loadPasswords = async () => {
@@ -29,27 +40,38 @@ const PasswordManager = () => {
     setFormData({ ...formData, [name]: value });
   };
 
- const handleSubmit = async (e) => {
-  e.preventDefault(); // Чтобы форма не перезагружала страницу
-  console.log("Форма отправлена с данными:", formData); // Проверяем данные формы
-  try {
-    if (editId) {
-      await updatePassword(editId, formData);
-      setEditId(null);
-    } else {
-      await addPassword(formData);
+  const handlePasswordSubmit = async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      alert("Необходимо войти в систему");
+      return;
     }
-    setFormData({ service: "", username: "", password: "" }); // Очистка формы
-    loadPasswords(); // Обновление списка
-  } catch (error) {
-    console.error("Ошибка при сохранении пароля:", error);
-  }
-};
 
+    const userId = localStorage.getItem("user_id"); // Получаем user_id
+    const passwordData = { ...formData, user_id: userId };
+
+    try {
+      if (editId) {
+        await updatePassword(editId, passwordData);
+        setEditId(null);
+      } else {
+        await addPassword(passwordData);
+      }
+      setFormData({ service: "", username: "", password: "" });
+      loadPasswords();
+    } catch (error) {
+      console.error("Ошибка при сохранении пароля:", error);
+    }
+  };
 
   const handleEdit = (password) => {
     setEditId(password.id);
-    setFormData({ service: password.service, username: password.username, password: password.password });
+    setFormData({
+      service: password.service,
+      username: password.username,
+      password: password.password,
+    });
   };
 
   const handleDelete = async (id) => {
@@ -61,10 +83,20 @@ const PasswordManager = () => {
     }
   };
 
+  if (!isLoggedIn) {
+    return (
+      <div>
+        <h1>Авторизация</h1>
+        <p>Для работы с паролями, пожалуйста, войдите в систему.</p>
+        <button onClick={() => navigate("/login")}>Перейти к форме входа</button>
+      </div>
+    );
+  }
+
   return (
     <div>
       <h1>Управление паролями</h1>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handlePasswordSubmit}>
         <input
           type="text"
           name="service"
@@ -82,7 +114,7 @@ const PasswordManager = () => {
           required
         />
         <input
-          type="text"
+          type="password"
           name="password"
           placeholder="Пароль"
           value={formData.password}
