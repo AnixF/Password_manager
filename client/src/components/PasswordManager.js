@@ -1,139 +1,210 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // Для редиректа на другую страницу
-import {
-  getPasswords,
-  addPassword,
-  updatePassword,
-  deletePassword,
-  registerUser,
-  loginUser,
-} from "../services/api";
+import { useNavigate } from "react-router-dom";
+import { getPasswords, addPassword, updatePassword, deletePassword } from "../services/api";
+import "../styles/PasswordManager.css";
 
 const PasswordManager = () => {
   const [passwords, setPasswords] = useState([]);
+  const [expandedIndex, setExpandedIndex] = useState(null);
   const [formData, setFormData] = useState({ service: "", username: "", password: "" });
-  const [editId, setEditId] = useState(null);
-  const [authMode, setAuthMode] = useState("login"); // Режим авторизации или регистрации
-  const [authData, setAuthData] = useState({ username: "", email: "", password: "" });
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const navigate = useNavigate(); // Для редиректа
+  const [searchQuery, setSearchQuery] = useState(""); // Строка поиска
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const token = localStorage.getItem("authToken");
-    if (token) {
-      setIsLoggedIn(true);
-      loadPasswords(); // Загружаем пароли, если пользователь залогинен
-    }
+    loadPasswords();
   }, []);
 
   const loadPasswords = async () => {
+    const userId = localStorage.getItem("user_id");
+    if (!userId) {
+      console.error("Ошибка: пользователь не авторизован");
+      return;
+    }
+
     try {
-      const data = await getPasswords();
+      const data = await getPasswords(userId);
       setPasswords(data);
     } catch (error) {
       console.error("Ошибка при загрузке паролей:", error);
     }
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+  const toggleTab = (index) => {
+    setExpandedIndex(index === expandedIndex ? null : index);
   };
 
-  const handlePasswordSubmit = async (e) => {
-    e.preventDefault();
-    const token = localStorage.getItem("authToken");
-    if (!token) {
-      alert("Необходимо войти в систему");
-      return;
-    }
+  const handleFieldChange = (index, field, value) => {
+    const updatedPasswords = [...passwords];
+    updatedPasswords[index] = { ...updatedPasswords[index], [field]: value };
+    setPasswords(updatedPasswords);
+  };
 
-    const userId = localStorage.getItem("user_id"); // Получаем user_id
-    const passwordData = { ...formData, user_id: userId };
-
+  const handleSave = async (index) => {
+    const passwordData = passwords[index];
     try {
-      if (editId) {
-        await updatePassword(editId, passwordData);
-        setEditId(null);
-      } else {
-        await addPassword(passwordData);
-      }
-      setFormData({ service: "", username: "", password: "" });
-      loadPasswords();
+      await updatePassword(passwordData.id, passwordData);
+      alert("Изменения сохранены!");
     } catch (error) {
-      console.error("Ошибка при сохранении пароля:", error);
+      console.error("Ошибка при сохранении изменений:", error);
     }
-  };
-
-  const handleEdit = (password) => {
-    setEditId(password.id);
-    setFormData({
-      service: password.service,
-      username: password.username,
-      password: password.password,
-    });
   };
 
   const handleDelete = async (id) => {
     try {
       await deletePassword(id);
-      loadPasswords();
+      setPasswords(passwords.filter((password) => password.id !== id));
+      alert("Аккаунт удалён!");
     } catch (error) {
-      console.error("Ошибка при удалении пароля:", error);
+      console.error("Ошибка при удалении аккаунта:", error);
     }
   };
 
-  if (!isLoggedIn) {
-    return (
-      <div>
-        <h1>Авторизация</h1>
-        <p>Для работы с паролями, пожалуйста, войдите в систему.</p>
-        <button onClick={() => navigate("/login")}>Перейти к форме входа</button>
-      </div>
-    );
-  }
+  const handleAddAccount = async (e) => {
+    e.preventDefault();
+    const userId = localStorage.getItem("user_id");
+    if (!userId) {
+      alert("Необходимо войти в систему!");
+      return;
+    }
+
+    const newPassword = {
+      service: formData.service || "Без названия",
+      username: formData.username,
+      password: formData.password,
+      user_id: userId,
+    };
+
+    try {
+      const addedPassword = await addPassword(newPassword);
+      setPasswords([...passwords, addedPassword]);
+      setFormData({ service: "", username: "", password: "" });
+      alert("Аккаунт добавлен!");
+      loadPasswords();
+    } catch (error) {
+      console.error("Ошибка при добавлении аккаунта:", error);
+    }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("user_id");
+    alert("Вы вышли из аккаунта");
+    navigate("/login");
+  };
+
+  const filteredPasswords = passwords.filter((password) =>
+    password.service?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
-    <div>
-      <h1>Управление паролями</h1>
-      <form onSubmit={handlePasswordSubmit}>
-        <input
-          type="text"
-          name="service"
-          placeholder="Сервис"
-          value={formData.service}
-          onChange={handleInputChange}
-          required
-        />
-        <input
-          type="text"
-          name="username"
-          placeholder="Логин"
-          value={formData.username}
-          onChange={handleInputChange}
-          required
-        />
-        <input
-          type="password"
-          name="password"
-          placeholder="Пароль"
-          value={formData.password}
-          onChange={handleInputChange}
-          required
-        />
-        <button type="submit">{editId ? "Сохранить изменения" : "Добавить"}</button>
-      </form>
+    <div className="password-manager">
+      {/* Боковая панель */}
+      <div className="sidebar">
+        <button onClick={() => navigate("/password-manager")}>
+          <img src="home.png" alt="Главная" style={{ width: "150px", height: "150px", objectFit: "cover" }} />
+        </button>
+        <button onClick={() => navigate("/edit-profile")}>
+          <img src="profile.png" alt="Редактировать профиль" style={{ width: "150px", height: "150px", objectFit: "cover" }} />
+        </button>
+        <button onClick={handleLogout}>
+          <img src="exit.png" alt="Выйти" style={{ width: "150px", height: "150px", objectFit: "cover" }} />
+        </button>
+      </div>
 
-      <h2>Список паролей</h2>
-      <ul>
-        {passwords.map((password) => (
-          <li key={password.id}>
-            <strong>{password.service}</strong> — {password.username} — {password.password}
-            <button onClick={() => handleEdit(password)}>Редактировать</button>
-            <button onClick={() => handleDelete(password.id)}>Удалить</button>
-          </li>
+      {/* Поиск */}
+      <div className="search-bar">
+        <input
+          type="text"
+          placeholder="Поиск по сервису..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
+
+      {/* Список аккаунтов */}
+      <div className="accounts-list">
+        {filteredPasswords.map((password, index) => (
+          <div
+            key={password.id}
+            className={`account-tab ${expandedIndex === index ? "expanded" : ""}`}
+          >
+            <div className="account-header" onClick={() => toggleTab(index)}>
+              <span>{password.service}</span>
+              <button>{expandedIndex === index ? "▲" : "▼"}</button>
+            </div>
+            {expandedIndex === index && (
+              <div className="account-details">
+                <form>
+                  <input
+                    type="text"
+                    value={password.service}
+                    onChange={(e) => handleFieldChange(index, "service", e.target.value)}
+                    placeholder="Сервис"
+                  />
+                  <input
+                    type="text"
+                    value={password.username}
+                    onChange={(e) => handleFieldChange(index, "username", e.target.value)}
+                    placeholder="Логин"
+                  />
+                  <input
+                    type="text"
+                    value={password.password}
+                    onChange={(e) => handleFieldChange(index, "password", e.target.value)}
+                    placeholder="Пароль"
+                  />
+                  <button type="button" onClick={() => handleSave(index)}>
+                    Сохранить
+                  </button>
+                  <button type="button" onClick={() => handleDelete(password.id)}>
+                    Удалить
+                  </button>
+                </form>
+              </div>
+            )}
+          </div>
         ))}
-      </ul>
+
+        {/* Вкладка добавления аккаунта */}
+        <div
+          className={`account-tab ${expandedIndex === passwords.length ? "expanded" : ""}`}
+        >
+          <div className="account-header" onClick={() => toggleTab(passwords.length)}>
+            <span>Добавить аккаунт</span>
+            <button>{expandedIndex === passwords.length ? "▲" : "＋"}</button>
+          </div>
+          {expandedIndex === passwords.length && (
+            <div className="account-details">
+              <form onSubmit={handleAddAccount}>
+                <input
+                  type="text"
+                  name="service"
+                  placeholder="Сервис"
+                  value={formData.service}
+                  onChange={(e) => setFormData({ ...formData, service: e.target.value })}
+                  required
+                />
+                <input
+                  type="text"
+                  name="username"
+                  placeholder="Логин"
+                  value={formData.username}
+                  onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                  required
+                />
+                <input
+                  type="text"
+                  name="password"
+                  placeholder="Пароль"
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  required
+                />
+                <button type="submit">Добавить</button>
+              </form>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };

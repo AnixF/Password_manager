@@ -1,0 +1,77 @@
+/* Общий стиль для контейнера */
+.register-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; /* Занимаем всю высоту экрана */
+  background-color: #1e1ea3; /* Синий фон */
+  margin: 0;
+}
+
+/* Стиль окна регистрации */
+.register-box {
+  background-color: #2929b0;
+  padding: 20px 40px;
+  border-radius: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  width: 300px; /* Фиксированная ширина */
+}
+
+/* Заголовок */
+.register-box h2 {
+  color: white;
+  margin-bottom: 20px;
+}
+
+/* Поля ввода */
+.register-box input[type="text"],
+.register-box input[type="email"],
+.register-box input[type="password"] {
+  background-color: #ffffff;
+  color: #000000;
+  border: none;
+  padding: 10px;
+  border-radius: 5px;
+  margin: 10px 0;
+  width: 100%;
+}
+
+/* Кнопка регистрации */
+.register-box button {
+  background-color: #4444ff;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 10px;
+  width: 100%; /* Кнопка занимает всю ширину */
+}
+
+.register-box button:hover {
+  background-color: #3333dd;
+}
+
+/* Кнопка для входа */
+.login-button {
+  background: none;
+  border: none;
+  color: #ffdd44;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+.login-button:hover {
+  color: #ffc107;
+}
+
+/* Сообщение об ошибке */
+.error-message {
+  color: #ff4444;
+  font-size: 14px;
+  margin-top: 10px;
+}

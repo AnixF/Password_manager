@@ -1,0 +1,74 @@
+.edit-profile {
+  display: flex;
+  min-height: 100vh; /* Задаём высоту как у Password Manager */
+  background-color: #1e1ea3; /* Цветной фон */
+  color: white;
+  font-family: Arial, sans-serif;
+}
+
+/* Боковая панель */
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 200px;
+  height: 100vh;
+  background-color: #2929b0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  gap: 20px;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
+}
+
+/* Для изображений в боковой панели */
+.sidebar img {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  cursor: pointer;
+}
+
+/* Основной контент */
+.profile-content {
+  margin-left: 220px; /* Сдвигаем вправо, чтобы не налезало на сайдбар */
+  padding: 20px;
+  width: calc(100% - 220px);
+}
+
+.profile-content h2 {
+  margin-bottom: 20px;
+}
+
+.profile-content form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.profile-content form label {
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.profile-content form input {
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
+}
+
+.profile-content form button {
+  padding: 10px;
+  background-color: #4444ff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.profile-content form button:hover {
+  background-color: #3333dd;
+}

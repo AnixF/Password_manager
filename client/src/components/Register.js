@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import "../styles/Register.css"; // Подключаем стили
 
 function Register() {
   const [username, setUsername] = useState("");
@@ -20,10 +21,10 @@ function Register() {
       });
 
       if (response.data.message === "User registered successfully") {
-        alert("Registration successful");
+        alert("Регистрация прошла успешно");
         navigate("/login"); // Переходим на страницу логина после успешной регистрации
       } else {
-        alert("Registration failed: " + response.data.message);
+        alert("Ошибка регистрации: " + response.data.message);
       }
     } catch (error) {
       if (error.response) {
@@ -33,36 +34,46 @@ function Register() {
       } else {
         setErrorMessage(`Ошибка при настройке запроса: ${error.message}`);
       }
-      console.error("Registration Error: ", error);
+      console.error("Ошибка регистрации: ", error);
     }
   };
 
   return (
-    <div>
-      <h2>Register</h2>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <button type="submit">Register</button>
-      </form>
-      {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
-      <p>Уже есть аккаунт? <button onClick={() => navigate("/login")}>Войти</button></p> {/* Кнопка перехода */}
+    <div className="register-container">
+      <div className="register-box">
+        <h2>Регистрация</h2>
+        <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            placeholder="Имя пользователя"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+          />
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
+          <input
+            type="password"
+            placeholder="Пароль"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <button type="submit">Зарегистрироваться</button>
+        </form>
+        {errorMessage && <p className="error-message">{errorMessage}</p>}
+        <p>
+
+          <button className="login-button" onClick={() => navigate("/login")}>
+            Войти
+          </button>
+        </p>
+      </div>
     </div>
   );
 }

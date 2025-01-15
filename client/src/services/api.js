@@ -79,3 +79,24 @@ export const loginUser = async (data) => {
   localStorage.setItem("token", userData.token); // Сохраняем токен в localStorage
   return userData;
 };
+
+export const getUserProfile = async (userId) => {
+  const response = await fetch(`/api/users/${userId}`);
+  if (!response.ok) {
+    throw new Error("Ошибка при загрузке профиля");
+  }
+  return response.json();
+};
+
+export const updateUserProfile = async (userId, profileData) => {
+  const response = await fetch(`/api/users/${userId}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(profileData),
+  });
+  if (!response.ok) {
+    throw new Error("Ошибка при обновлении профиля");
+  }
+  return response.json();
+};
+

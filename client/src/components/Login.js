@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import "../styles/Login.css"; // Подключаем стили
 
 function Login() {
   const [username, setUsername] = useState("");
@@ -21,32 +22,41 @@ function Login() {
         localStorage.setItem("user_id", response.data.user_id); // Сохраняем user_id
         navigate("/password-manager"); // Перенаправляем на страницу управления паролями
       } else {
-        alert("Invalid username or password");
+        alert("Неверное имя пользователя или пароль");
       }
     } catch (error) {
-      alert("An error occurred while logging in");
+      alert("Ошибка при входе в систему");
     }
   };
 
   return (
-    <div>
-      <h2>Login</h2>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <button type="submit">Login</button>
-      </form>
-      <p>Нет аккаунта? <button onClick={() => navigate("/register")}>Зарегистрируйтесь</button></p> {/* Кнопка перехода */}
+    <div className="login-container">
+      <div className="login-box">
+        <h2>Вход</h2>
+        <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            placeholder="Имя пользователя"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+          />
+          <input
+            type="password"
+            placeholder="Пароль"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
+          <button type="submit">Войти</button>
+        </form>
+        <p>
+
+          <button className="register-button" onClick={() => navigate("/register")}>
+            Зарегистрироваться
+          </button>
+        </p>
+      </div>
     </div>
   );
 }
