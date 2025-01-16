@@ -1,20 +1,35 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import "../styles/Register.css"; // Подключаем стили
+import "../styles/Register.css";
 
 function Register() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState(""); // Для отображения ошибки
+  const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!/^[a-zA-Z0-9_]{3,50}$/.test(username)) {
+      alert("Имя пользователя должно содержать только буквы, цифры или _ и быть длиной от 3 до 50 символов.");
+      return;
+    }
+
+    if (!/^[\w.-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(email)) {
+      alert("Введите корректный email.");
+      return;
+    }
+
+    if (password.length < 8 || password.length > 128) {
+      alert("Пароль должен быть длиной от 8 до 128 символов.");
+      return;
+    }
+
     try {
-      const response = await axios.post("http://localhost:5000/api/users/", {
+      const response = await axios.post("https://2c1b-83-143-200-19.ngrok-free.app/api/users/", {
         username,
         email,
         password,
@@ -22,18 +37,18 @@ function Register() {
 
       if (response.data.message === "User registered successfully") {
         alert("Регистрация прошла успешно");
-        navigate("/login"); // Переходим на страницу логина после успешной регистрации
+        navigate("/login");
       } else {
         alert("Ошибка регистрации: " + response.data.message);
       }
     } catch (error) {
-      if (error.response) {
-        setErrorMessage(`Ошибка сервера: ${error.response.data.message || error.response.statusText}`);
-      } else if (error.request) {
-        setErrorMessage("Сервер не ответил на запрос");
-      } else {
-        setErrorMessage(`Ошибка при настройке запроса: ${error.message}`);
-      }
+      setErrorMessage(
+        error.response
+          ? `Ошибка сервера: ${error.response.data.message || error.response.statusText}`
+          : error.request
+          ? "Сервер не ответил на запрос"
+          : `Ошибка при настройке запроса: ${error.message}`
+      );
       console.error("Ошибка регистрации: ", error);
     }
   };
@@ -47,6 +62,7 @@ function Register() {
             type="text"
             placeholder="Имя пользователя"
             value={username}
+            maxLength="50"
             onChange={(e) => setUsername(e.target.value)}
             required
           />
@@ -54,6 +70,7 @@ function Register() {
             type="email"
             placeholder="Email"
             value={email}
+            maxLength="100"
             onChange={(e) => setEmail(e.target.value)}
             required
           />
@@ -61,6 +78,7 @@ function Register() {
             type="password"
             placeholder="Пароль"
             value={password}
+            maxLength="128"
             onChange={(e) => setPassword(e.target.value)}
             required
           />
@@ -68,7 +86,6 @@ function Register() {
         </form>
         {errorMessage && <p className="error-message">{errorMessage}</p>}
         <p>
-
           <button className="login-button" onClick={() => navigate("/login")}>
             Войти
           </button>
