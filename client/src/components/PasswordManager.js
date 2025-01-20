@@ -5,19 +5,33 @@ import "../styles/PasswordManager.css";
 
 const PasswordManager = () => {
   const [passwords, setPasswords] = useState([]);
-  const [expandedIndex, setExpandedIndex] = useState(null);
+  const [expandedIndex, setExpandedIndex] = useState(
+    localStorage.getItem("expandedIndex") ? parseInt(localStorage.getItem("expandedIndex"), 10) : null
+  );
   const [formData, setFormData] = useState({ service: "", username: "", password: "" });
-  const [searchQuery, setSearchQuery] = useState(""); // Строка поиска
+  const [searchQuery, setSearchQuery] = useState(localStorage.getItem("searchQuery") || ""); // Сохраняем строку поиска
   const navigate = useNavigate();
 
   useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    if (!token) {
+      alert("Войдите в аккаунт");
+      navigate("/login");
+      return;
+    }
     loadPasswords();
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem("expandedIndex", expandedIndex !== null ? expandedIndex.toString() : "");
+    localStorage.setItem("searchQuery", searchQuery);
+  }, [expandedIndex, searchQuery]);
 
   const loadPasswords = async () => {
     const userId = localStorage.getItem("user_id");
     if (!userId) {
       console.error("Ошибка: пользователь не авторизован");
+      navigate("/login");
       return;
     }
 
@@ -86,7 +100,7 @@ const PasswordManager = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("user_id");
+    localStorage.clear(); // Чистим весь localStorage
     alert("Вы вышли из аккаунта");
     navigate("/login");
   };
