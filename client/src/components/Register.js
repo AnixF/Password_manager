@@ -29,7 +29,7 @@ function Register() {
     }
 
     try {
-      const response = await axios.post("https://2c1b-83-143-200-19.ngrok-free.app/api/users/", {
+      const response = await axios.post("https://passwordmanager-production-553b.up.railway.app/api/users/", {
         username,
         email,
         password,
@@ -44,7 +44,7 @@ function Register() {
     } catch (error) {
       setErrorMessage(
         error.response
-          ? `Ошибка сервера: ${error.response.data.message || error.response.statusText}`
+          ? `Ошибка регистрации: ${error.response.data.message || error.response.statusText}`
           : error.request
           ? "Сервер не ответил на запрос"
           : `Ошибка при настройке запроса: ${error.message}`

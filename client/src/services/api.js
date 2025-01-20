@@ -1,4 +1,4 @@
-const API_URL = "https://2c1b-83-143-200-19.ngrok-free.app";
+const API_URL = "https://passwordmanager-production-553b.up.railway.app/";
 
 // Получить все пароли
 export const getPasswords = async () => {

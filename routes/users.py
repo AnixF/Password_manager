@@ -72,12 +72,12 @@ def update_user(user_id):
 
     if "username" in data and data["username"] != user.username:
         if User.query.filter_by(username=data["username"]).first():
-            return jsonify(message="Username already exists"), 400
+            return jsonify(message="Пользователь с таким логином уже существует"), 400
         user.username = data["username"]
 
     if "email" in data and data["email"] != decrypt(user.email):  # Расшифровываем текущий email для проверки
         if User.query.filter_by(email=encrypt(data["email"])).first():
-            return jsonify(message="Email already exists"), 400
+            return jsonify(message="Пользователь с такой почтой уже существует"), 400
         user.email = encrypt(data["email"])  # Шифруем новый email
 
     if "password" in data and data["password"]:

@@ -23,7 +23,7 @@ function Login() {
     }
 
     try {
-      const response = await axios.post("https://2c1b-83-143-200-19.ngrok-free.app/api/users/login", {
+      const response = await axios.post("https://passwordmanager-production-553b.up.railway.app/api/users/login", {
         username,
         password,
       });
