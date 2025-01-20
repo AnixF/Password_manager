@@ -6,3 +6,4 @@ psycopg2-binary
 flask-cors
 Werkzeug==2.3.0
 bleach
+cryptography
